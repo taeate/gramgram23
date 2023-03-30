@@ -11,11 +11,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest // 스프링부트 관련 컴포넌트 테스트할 때 붙여야함. ioc 컨테이너 작동시킴
@@ -29,18 +31,45 @@ public class MemberControllerTests {
     @Test
     @DisplayName("회원가입 폼")
     void t001() throws Exception {
-        //WHEN > mvc 를 통해 get 요청으로 수행
+        // WHEN
         ResultActions resultActions = mvc
                 .perform(get("/member/join"))
-                .andDo(print()); //확인용
+                .andDo(print()); // 크게 의미 없고, 그냥 확인용
 
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("showJoin"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("""
+                        <input type="text" name="username"
+                        """.stripIndent().trim())))
+                .andExpect(content().string(containsString("""
+                        <input type="password" name="password"
+                        """.stripIndent().trim())))
+                .andExpect(content().string(containsString("""
+                        <input type="submit" value="회원가입"
+                        """.stripIndent().trim())));
+    }
+    @Test
+    @DisplayName("회원가입")
+    void t002() throws Exception {
+        //WHEN > mvc 를 통해 get 요청으로 수행
+        ResultActions resultActions = mvc
+
+                .perform(post("/member/join")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username","user1")
+                        .param("password","1234")
+                )
+                        .andDo(print());
         //THEN
         resultActions
-                .andExpect(status().is2xxSuccessful())
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("showJoin"));
-
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is3xxRedirection());
 
     }
+
 
 }
