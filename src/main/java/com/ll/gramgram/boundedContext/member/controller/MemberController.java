@@ -48,4 +48,10 @@ public class MemberController {
     public String showLogin(){
         return "usr/member/login";
     }
+
+    @PreAuthorize("isAuthenticated()") // 로그인 한사람만 들어올수있음
+    @GetMapping("/me")
+    public String showMe(){
+        return "usr/member/me";
+    }
 }
