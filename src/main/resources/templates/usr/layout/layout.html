@@ -57,7 +57,6 @@
 </head>
 
 <body>
-
 <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.5/dist/full.css" rel="stylesheet" type="text/css"/>
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -73,6 +72,19 @@
 </header>
 
 <main layout:fragment="main"></main>
+
+<script th:inline="javascript">
+  // 타임리프 문법(파라미터, ? 뒤에 입력된 매개변수들)
+  const params = /*[[ ${param} ]]*/ null;
+
+  if (params.msg) {
+    toastNotice(params.msg[0]);
+  }
+
+  if (params.errorMsg) {
+    toastWarning(params.errorMsg[0]);
+  }
+</script>
 
 </body>
 
