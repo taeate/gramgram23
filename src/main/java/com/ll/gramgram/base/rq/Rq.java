@@ -1,5 +1,6 @@
 package com.ll.gramgram.base.rq;
 
+import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,14 +16,14 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope // ioc 컨테이너에 담기는거라 , 언제어디서든 꺼낼수있음
 public class Rq {
 
-    private  final HttpServletRequest req;
-    private  final HttpServletResponse resp;
-    private  final HttpSession session;
     private final MemberService memberService;
+    private final HttpServletRequest req;
+    private final HttpServletResponse resp;
+    private final HttpSession session;
     private final User user;
-    private Member member = null; // 레이지 로딩, 처음부터 넣지않고, 요청이 들어올 때 넣는다.
+    private Member member = null; // 레이지 로딩, 처음부터 넣지 않고, 요청이 들어올 때 넣는다.
 
-    public Rq(HttpServletRequest req, HttpServletResponse resp, HttpSession session, MemberService memberService){
+    public Rq(MemberService memberService, HttpServletRequest req, HttpServletResponse resp, HttpSession session) {
         this.memberService = memberService;
         this.req = req;
         this.resp = resp;
@@ -57,5 +58,11 @@ public class Rq {
             member = memberService.findByUsername(user.getUsername()).orElseThrow();
         }
         return member;
+    }
+
+    public String historyBack(String msg) {
+        // model.addAttribute 와 같은 의미
+        req.setAttribute("alertMsg", msg);
+        return "common/js";
     }
 }
